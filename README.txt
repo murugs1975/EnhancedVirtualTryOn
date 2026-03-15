@@ -2,7 +2,7 @@
 
 A production-ready virtual try-on system 
 
-Contributors : Biraj Mishra, Joyati R, Murughanandam Sivasubramanian
+
 ---
 
 ## Architecture
@@ -79,7 +79,7 @@ EnhancedVirtualTryOn/
 │   ├── networks.py               #   ConditionGenerator architecture
 │   └── network_generator.py      #   SPADEGenerator architecture
 │
-├── virtual-tryon/                # Research notebooks (coursework)
+├── virtual-tryon/                # Research notebooks 
 │   ├── virtual_tryon_v4.ipynb    #   Main notebook — HR-VITON inference
 │   ├── virtual_tryon_v3.ipynb    #   Iteration 3 — dense-flow from scratch
 │   ├── virtual_tryon_v2.ipynb    #   Iteration 2 — improved CP-VTON
