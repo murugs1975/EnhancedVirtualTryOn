@@ -1,0 +1,3 @@
+read the problem statement present in create_deck.py and in the ppt file. I ant you to use the dataset which contains test and train data to perform virtual tryon. 
+Do it like an academic project sttle. You should include eda, make sure the project is optimised to run faster on CPU. show results, ensure no over fittin. All these should be in th ipnb file.
+ 
