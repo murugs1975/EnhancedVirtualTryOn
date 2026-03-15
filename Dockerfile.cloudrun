@@ -1,0 +1,71 @@
+# ============================================================
+# Stage 1: Build Next.js frontend
+# ============================================================
+FROM node:18-alpine AS frontend-builder
+
+WORKDIR /frontend
+
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+
+COPY frontend/ .
+
+# Empty string makes API calls relative to the same origin (nginx will route them)
+ENV NEXT_PUBLIC_API_URL=""
+RUN npm run build
+
+# ============================================================
+# Stage 2: Combined runtime (Python backend + Node frontend + Nginx)
+# ============================================================
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Install system dependencies: OpenCV libs, Node.js, Nginx, Supervisor, curl
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgomp1 libgl1 libglib2.0-0 curl \
+    nginx supervisor \
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+# ---- Python backend ----
+COPY api/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY api/ /app/api/
+
+# Copy ONNX models
+COPY onnx_models/ /app/api/models/
+
+# Download MediaPipe pose landmarker model
+RUN curl -L -o /app/api/models/pose_landmarker_heavy.task \
+    https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_heavy/float16/latest/pose_landmarker_heavy.task
+
+# Create temp directories
+RUN mkdir -p /tmp/tryon/uploads /tmp/tryon/outputs
+
+# ---- Next.js frontend ----
+COPY --from=frontend-builder /frontend/.next/standalone /app/frontend/
+COPY --from=frontend-builder /frontend/.next/static /app/frontend/.next/static
+COPY --from=frontend-builder /frontend/public /app/frontend/public
+
+# ---- Nginx config ----
+COPY nginx.cloudrun.conf /etc/nginx/nginx.conf
+
+# ---- Supervisor config ----
+COPY supervisord.cloudrun.conf /etc/supervisor/conf.d/supervisord.conf
+
+# ---- Startup script (sets PORT dynamically) ----
+COPY start-cloudrun.sh /app/start-cloudrun.sh
+RUN sed -i 's/\r$//' /app/start-cloudrun.sh && chmod +x /app/start-cloudrun.sh
+
+# Fix line endings on all config files (Windows CRLF → Unix LF)
+RUN sed -i 's/\r$//' /etc/nginx/nginx.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Cloud Run sets PORT env (default 8080)
+ENV PORT=8080
+
+EXPOSE 8080
+
+CMD ["/app/start-cloudrun.sh"]

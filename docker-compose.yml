@@ -1,0 +1,45 @@
+services:
+  hr-viton-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hr-viton-api
+    ports:
+      - "8020:8000"
+    environment:
+      - TOCG_MODEL_PATH=/app/models/tocg.onnx
+      - GEN_MODEL_PATH=/app/models/gen.onnx
+      - UPLOAD_DIR=/tmp/tryon/uploads
+      - OUTPUT_DIR=/tmp/tryon/outputs
+    volumes:
+      - upload-data:/tmp/tryon/uploads
+      - output-data:/tmp/tryon/outputs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 6G
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=http://localhost:8020
+    container_name: hr-viton-frontend
+    ports:
+      - "3001:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8020
+    depends_on:
+      hr-viton-api:
+        condition: service_healthy
+
+volumes:
+  upload-data:
+  output-data:

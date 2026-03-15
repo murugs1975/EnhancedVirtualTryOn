@@ -1,0 +1,45 @@
+# .gitignore
+
+# User data and large logs
+data/
+build_error.log
+/tmp/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Node.js
+node_modules/
+.next/
+dist/
+out/
+build/
+.cache/
+
+# OS/IDE
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Agentic/Gemini artifacts (don't push conversation history)
+.gemini/
+.agents/
+brain/
+
+# Models (Handled by Git LFS or ignored if you prefer, but we'll use LFS)
+checkpoints/
+eval_models/
+
+# Ignore local env files
+.env
+.env.local
+.env.cloudrun

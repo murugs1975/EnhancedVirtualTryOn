@@ -1,0 +1,34 @@
+# Large directories not needed in build
+HR-VITON/
+virtual-tryon/
+venv/
+data/
+checkpoints/
+eval_models/
+
+# Frontend node_modules (npm ci runs in build stage)
+frontend/node_modules/
+frontend/.next/
+
+# Python cache
+__pycache__/
+*.pth
+*.pyc
+*.pyo
+
+# Git
+.git/
+.gitignore
+
+# Docs and test artifacts
+*.md
+*.html
+api_tryon_test_response.txt
+
+# Export scripts (not needed at runtime)
+export_models.py
+export_schp.py
+
+# Docker files (not needed inside container)
+docker-compose.yml
+deploy-cloudrun.sh
