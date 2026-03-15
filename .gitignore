@@ -36,7 +36,6 @@ Thumbs.db
 brain/
 
 # Models (Handled by Git LFS or ignored if you prefer, but we'll use LFS)
-checkpoints/
 eval_models/
 
 # Ignore local env files
